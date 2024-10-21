@@ -1,0 +1,39 @@
+import numpy as np
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
+
+# Variabel input (contoh: kecepatan keputusan dan kepercayaan)
+decision_speed = ctrl.Antecedent(np.arange(0, 11, 1), 'decision_speed')
+trust_level = ctrl.Antecedent(np.arange(0, 11, 1), 'trust_level')
+
+# Variabel output (konsensus akhir)
+consensus = ctrl.Consequent(np.arange(0, 101, 1), 'consensus')
+
+# Menentukan fungsi keanggotaan fuzzy
+decision_speed['slow'] = fuzz.trimf(decision_speed.universe, [0, 0, 5])
+decision_speed['medium'] = fuzz.trimf(decision_speed.universe, [0, 5, 10])
+decision_speed['fast'] = fuzz.trimf(decision_speed.universe, [5, 10, 10])
+
+trust_level['low'] = fuzz.trimf(trust_level.universe, [0, 0, 5])
+trust_level['medium'] = fuzz.trimf(trust_level.universe, [0, 5, 10])
+trust_level['high'] = fuzz.trimf(trust_level.universe, [5, 10, 10])
+
+consensus['low'] = fuzz.trimf(consensus.universe, [0, 0, 50])
+consensus['medium'] = fuzz.trimf(consensus.universe, [0, 50, 100])
+consensus['high'] = fuzz.trimf(consensus.universe, [50, 100, 100])
+
+# Aturan fuzzy
+rule1 = ctrl.Rule(decision_speed['slow'] & trust_level['low'], consensus['low'])
+rule2 = ctrl.Rule(decision_speed['medium'] & trust_level['medium'], consensus['medium'])
+rule3 = ctrl.Rule(decision_speed['fast'] & trust_level['high'], consensus['high'])
+
+# Sistem kontrol
+consensus_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
+consensus_sim = ctrl.ControlSystemSimulation(consensus_ctrl)
+
+# Simulasi
+consensus_sim.input['decision_speed'] = 7
+consensus_sim.input['trust_level'] = 8
+consensus_sim.compute()
+
+print(f'Nilai konsensus: {consensus_sim.output["consensus"]}')
