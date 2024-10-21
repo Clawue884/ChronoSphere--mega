@@ -1,0 +1,14 @@
+from sympy import symbols, Eq, solve
+
+# Misalnya, kita membuat kontrak pintar yang mendefinisikan hubungan matematis
+x, y = symbols('x y')
+equation = Eq(x + y, 10)  # Misalnya kontrak menetapkan total x + y harus 10
+
+def smart_contract_solver(input_value):
+    solution = solve(equation.subs(x, input_value), y)
+    return solution[0]
+
+# Contoh eksekusi kontrak
+input_value = 6
+result = smart_contract_solver(input_value)
+print(f'Nilai untuk x: {input_value}, solusi untuk y: {result}')
